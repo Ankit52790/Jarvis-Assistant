@@ -1,0 +1,185 @@
+import pyttsx3
+import datetime
+import speech_recognition as sr
+import wikipedia
+import smtplib
+import webbrowser as wb
+import os
+import pyautogui
+import psutil
+import pyjokes
+
+engine = pyttsx3.init()
+
+
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
+    
+    
+def camera(video):
+    engine.say(video)
+    engine.runAndWait()   
+
+
+def time():
+    Time = datetime.datetime.now().strftime("%I:%M:%S")
+    speak("The current time is")
+    speak(Time)
+
+
+def date():
+    year = int(datetime.datetime.now().year)
+    month = int(datetime.datetime.now().month)
+    day = int(datetime.datetime.now().day)
+    speak("The current date is")
+    speak(day)
+    speak(month)
+    speak(year)
+
+
+def wishme():
+    speak("Welcome back, Sir!")
+    time()
+    date()
+    hour = datetime.datetime.now().hour
+    if hour >= 6 and hour < 12:
+        speak("Good morning, Sir!")
+    elif hour >= 12 and hour < 18:
+        speak("Good afternoon, Sir!")
+    elif hour >= 18 and hour < 24:
+        speak("Good evening, Sir!")
+    else:
+        speak("Good night, Sir!")            
+    speak("Jarvis at your service. Please tell me how I can help you.")
+
+
+def takeCommand():
+    r = sr.Recognizer()  # Corrected assignment
+    with sr.Microphone() as source:
+        print("Listening...")
+        r.pause_threshold = 1
+        audio = r.listen(source)
+    try:
+        print("Recognizing...")
+        query = r.recognize_google(audio, language='en-in')
+        print(query)
+    except Exception as e:
+        print(e)
+        speak("Could not understand the Voice, Say that again Please Sir/Mam ...")
+        return "None"
+    return query
+    
+
+def sendEmail(to, content):
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.ehlo()
+        server.starttls()
+        # Replace with actual email and app password
+        server.login('your_email@gmail.com', 'your_password')
+        server.sendmail('your_email@gmail.com', to, content)
+        server.close()
+        speak("Email has been sent successfully.")
+    except Exception as e:
+        print(e)
+        speak("Unable to send the email.")
+
+
+def screenshot():
+    img = pyautogui.screenshot()
+    img.save("screenshot.png")
+    speak("Screenshot taken and saved.")
+
+
+def cpu():
+    usage = str(psutil.cpu_percent())
+    speak(f"CPU is at {usage} percent.")
+    battery = psutil.sensors_battery()
+    if battery:
+        speak(f"Battery is at {battery.percent} percent.")
+    else:
+        speak("Unable to fetch battery information.")
+
+
+def jokes():
+    speak(pyjokes.get_joke())
+
+
+if __name__ == "__main__":
+    wishme()
+    while True:
+        query = takeCommand().lower()
+        
+        if 'time' in query:
+            time()
+        
+        elif 'date' in query:
+            date()
+
+        elif 'wikipedia' in query:
+            speak("Searching...")
+            query = query.replace("wikipedia", "")
+            search_url = f"https://en.wikipedia.org/wiki/{query}"
+            wb.open(search_url)
+            speak("I have opened the Wikipedia page in your browser.")
+
+        elif 'send email' in query:
+            try:
+                speak("What should I say?")
+                content = takeCommand()
+                to = 'aankitkumar527909@gmail.com'  # Replace with actual recipient email
+                sendEmail(to, content)
+            except Exception as e:
+                print(e)
+                speak("Unable to send the email.")
+
+        elif 'search in chrome' in query:
+            speak("What should I search?")
+            search = takeCommand().lower()
+            chromepath = 'C:/Program Files/Google/Chrome/Application/chrome.exe %s'
+            wb.get(chromepath).open_new_tab(f"https://www.google.com/search?q={search}")
+
+        elif 'logout' in query:
+            os.system("shutdown -l")
+
+        elif 'shutdown' in query:
+            os.system("shutdown /s /t 1")
+
+        elif 'restart' in query:
+            os.system("shutdown /r /t 1")
+
+        elif 'play song' in query:
+            songs_dir = 'D:/Music'  # Replace with your music folder path
+            songs = os.listdir(songs_dir)
+            if songs:
+                os.startfile(os.path.join(songs_dir, songs[0]))
+            else:
+                speak("No songs found in the directory.")
+
+        elif 'remember that' in query:
+            speak("What should I remember?")
+            data = takeCommand()
+            with open('data.txt', 'w') as remember:
+                remember.write(data)
+            speak("I have noted that down.")
+
+        elif 'do you know anything' in query:
+            try:
+                with open('data.txt', 'r') as remember:
+                    speak("You asked me to remember that " + remember.read())
+            except FileNotFoundError:
+                speak("I do not have any notes to recall.")
+
+        elif 'screenshot' in query:
+            screenshot()
+
+        elif 'cpu' in query:
+            cpu()
+
+        elif 'jokes' in query:
+            jokes()
+
+        elif 'offline' in query:
+            speak("Thank you, Sir. Have a good day!")
+            quit()
