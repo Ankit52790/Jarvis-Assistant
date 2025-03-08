@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis  Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Jarvis  Assistant</h1>
+        <div class="controls">
+            <button id="timeBtn">Get Time</button>
+            <button id="dateBtn">Get Date</button>
+            <button id="jokeBtn">Tell Me a Joke</button>
+            <button id="emailBtn">Send Email</button>
+            <button id="screenshotBtn">Take Screenshot</button>
+            <button id="cpuBtn">Check CPU & Battery</button>
+        </div>
+        <div class="output">
+            <h2>Output</h2>
+            <p id="outputText">Your results will appear here...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
